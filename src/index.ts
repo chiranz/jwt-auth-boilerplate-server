@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -10,7 +11,7 @@ const PORT = process.env.PORT || 4000;
 (async () => {
   const app = express();
   app.get("/", (_, res) => res.send("Hello World!"));
-
+  console.log(process.env.ACCESS_TOKEN_SECRET);
   await createConnection()
     .then(() => console.log("Database Connected!"))
     .catch(() => console.log("Database connection failed"));
