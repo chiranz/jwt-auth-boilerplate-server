@@ -5,7 +5,7 @@ import { ApolloServer } from "apollo-server-express";
 import { UserResolver } from "./resolvers/UserResolver";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
-import refreshRouter from "./routes/refreshToken";
+import refreshRouter from "./routes/refreshRoute";
 import cookieParser from "cookie-parser";
 
 const PORT = process.env.PORT || 4000;

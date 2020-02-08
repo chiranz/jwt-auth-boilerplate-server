@@ -6,13 +6,16 @@ import {
   ObjectType,
   Field,
   Ctx,
-  UseMiddleware
+  UseMiddleware,
+  Int
 } from "type-graphql";
 import { hash, compare } from "bcryptjs";
 import { User } from "../entity/User";
 import { MyContext } from "../MyContext";
 import { createRefreshToken, createAccessToken } from "../auth";
 import { isAuth } from "../isAuth";
+import { sendRefreshToken } from "../sendRefreshToken";
+import { getConnection } from "typeorm";
 
 @ObjectType()
 class LoginResponse {
@@ -37,6 +40,13 @@ export class UserResolver {
   @Query(() => [User])
   getUsers() {
     return User.find();
+  }
+
+  @Mutation(() => Boolean)
+  async revokeRefreshTokensForUser(@Arg("userId", () => Int) userId: number) {
+    await getConnection()
+      .getRepository(User)
+      .increment({ id: userId }, "tokenVersion", 1);
   }
 
   @Mutation(() => Boolean)
@@ -76,9 +86,7 @@ export class UserResolver {
     // Login Successful
 
     // Set refresh token in cookie
-    res.cookie("jid", createRefreshToken(user), {
-      httpOnly: true
-    });
+    sendRefreshToken(res, createRefreshToken(user));
 
     return {
       accessToken: createAccessToken(user)

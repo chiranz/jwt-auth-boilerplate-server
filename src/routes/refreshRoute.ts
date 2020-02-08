@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { verify } from "jsonwebtoken";
 import { User } from "../entity/User";
-import { createAccessToken } from "../auth";
+import { createAccessToken, createRefreshToken } from "../auth";
+import { sendRefreshToken } from "../sendRefreshToken";
 
 const refreshRouter = Router();
 
@@ -23,6 +24,12 @@ refreshRouter.post("/refresh_token", async (req, res) => {
   if (!user) {
     return res.send({ ok: false, accessToken: "" });
   }
+  if (user.tokenVersion !== payload.tokenVersion) {
+    return res.send({ ok: false, accessToken: "" });
+  }
+  // Update refresh token every time the client asks for new accessToken
+  sendRefreshToken(res, createRefreshToken(user));
+
   return res.send({ ok: true, accessToken: createAccessToken(user) });
 });
 
