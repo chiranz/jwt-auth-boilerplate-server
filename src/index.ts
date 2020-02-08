@@ -1,6 +1,7 @@
 import "dotenv/config";
 import "reflect-metadata";
 import express from "express";
+import cors from "cors";
 import { ApolloServer } from "apollo-server-express";
 import { UserResolver } from "./resolvers/UserResolver";
 import { buildSchema } from "type-graphql";
@@ -12,6 +13,12 @@ const PORT = process.env.PORT || 4000;
 
 (async () => {
   const app = express();
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true
+    })
+  );
   app.use(cookieParser());
   app.get("/", (_, res) => res.send("Hello World!"));
   app.use("/", refreshRouter);
@@ -25,7 +32,7 @@ const PORT = process.env.PORT || 4000;
     context: ({ req, res }) => ({ req, res })
   });
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: false });
   app.listen(PORT, () => {
     console.log(`Port running on ${PORT}`);
   });

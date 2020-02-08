@@ -56,6 +56,10 @@ export class UserResolver {
     @Arg("password", () => String) password: string
   ) {
     const hashedPassword = await hash(password, 12);
+    const checkUser = await User.findOne({ where: { email } });
+    if (checkUser) {
+      throw new Error("Email already registered!");
+    }
     try {
       await User.insert({
         username,
